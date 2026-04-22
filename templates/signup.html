@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% block title %}Sign Up — AuthApp{% endblock %}
+
+{% block head %}
+<style>
+  .auth-layout {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* ── Left panel ── */
+  .auth-panel {
+    background: linear-gradient(145deg, #0d0d18, #12121e);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .auth-panel::before {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(108,99,255,.2) 0%, transparent 70%);
+    top: -80px; left: -80px;
+  }
+  .auth-panel::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,101,132,.15) 0%, transparent 70%);
+    bottom: -60px; right: -60px;
+  }
+  .panel-content { position: relative; z-index: 1; }
+  .panel-logo {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: .1em;
+    text-decoration: none;
+    margin-bottom: 4rem;
+    display: block;
+  }
+  .panel-heading {
+    font-family: var(--font-head);
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    margin-bottom: 1.25rem;
+  }
+  .panel-heading span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .panel-text { color: var(--muted); line-height: 1.75; font-size: .95rem; max-width: 340px; }
+
+  .steps {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(108,99,255,.18);
+    border: 1px solid rgba(108,99,255,.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { font-size: .875rem; color: var(--muted); line-height: 1.5; }
+  .step-text strong { color: var(--text); font-weight: 500; }
+
+  /* ── Right / form panel ── */
+  .auth-form-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+
+  .card-title {
+    font-family: var(--font-head);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: .4rem;
+  }
+  .card-sub {
+    color: var(--muted);
+    font-size: .875rem;
+    margin-bottom: 2rem;
+  }
+  .card-sub a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .card-sub a:hover { text-decoration: underline; }
+
+  .field { margin-bottom: 1.25rem; }
+  .field label {
+    display: block;
+    font-size: .8rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: .5rem;
+  }
+  .field input {
+    width: 100%;
+    padding: .8rem 1rem;
+    background: rgba(255,255,255,.04);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: .95rem;
+    outline: none;
+    transition: border-color .2s, background .2s;
+  }
+  .field input:focus {
+    border-color: var(--accent);
+    background: rgba(108,99,255,.06);
+  }
+  .field input::placeholder { color: rgba(136,136,170,.5); }
+
+  .pw-wrap { position: relative; }
+  .pw-toggle {
+    position: absolute;
+    right: .85rem; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: var(--muted); cursor: pointer; font-size: 1rem;
+    transition: color .2s;
+  }
+  .pw-toggle:hover { color: var(--text); }
+
+  .strength-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    margin-top: .5rem;
+    overflow: hidden;
+  }
+  .strength-fill {
+    height: 100%;
+    border-radius: 99px;
+    width: 0;
+    transition: width .3s, background .3s;
+  }
+  .strength-label {
+    font-size: .72rem;
+    color: var(--muted);
+    margin-top: .3rem;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: .9rem;
+    background: linear-gradient(135deg, var(--accent), #8b85ff);
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: .5rem;
+    box-shadow: 0 4px 20px rgba(108,99,255,.3);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(108,99,255,.45);
+  }
+  .btn-submit:active { transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    .auth-layout { grid-template-columns: 1fr; }
+    .auth-panel  { display: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+  <!-- Left panel -->
+  <div class="auth-panel">
+    <div class="panel-content">
+      <a href="/" class="panel-logo">◆ AUTHAPP</a>
+      <h2 class="panel-heading">Start your<br><span>journey here</span></h2>
+      <p class="panel-text">Create an account in seconds. Use your email or mobile number — whatever works for you.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Enter your details</strong><br>Full name, email or mobile, and a strong password.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Credentials saved securely</strong><br>Password is hashed with bcrypt before storing in MySQL.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Log in any time</strong><br>Use the same identifier &amp; password to access your account.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right / form -->
+  <div class="auth-form-wrap">
+    <div class="auth-card">
+      <h1 class="card-title">Create account</h1>
+      <p class="card-sub">Already have one? <a href="/login">Log in →</a></p>
+
+      <form method="POST" action="/signup">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" name="full_name" placeholder="Jane Doe"
+                 value="{{ form_data.get('full_name', '') }}" required>
+        </div>
+
+        <div class="field">
+          <label>Email or Mobile Number</label>
+          <input type="text" name="identifier" placeholder="you@example.com or +91XXXXXXXXXX"
+                 value="{{ form_data.get('identifier', '') }}" required>
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <div class="pw-wrap">
+            <input type="password" name="password" id="pw1"
+                   placeholder="Min. 8 characters" required>
+            <button type="button" class="pw-toggle" onclick="togglePw('pw1',this)">👁</button>
+          </div>
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <div class="strength-label" id="strength-label">Enter a password</div>
+        </div>
+
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="pw-wrap">
+            <input type="password" name="confirm_password" id="pw2"
+                   placeholder="Repeat your password" required>
+            <button type="button" class="pw-toggle" onclick="togglePw('pw2',this)">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Create Account →</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁';
+  }
+
+  const pw1 = document.getElementById('pw1');
+  const fill = document.getElementById('strength-fill');
+  const lbl  = document.getElementById('strength-label');
+
+  pw1.addEventListener('input', () => {
+    const v = pw1.value;
+    let score = 0;
+    if (v.length >= 8)  score++;
+    if (/[A-Z]/.test(v)) score++;
+    if (/[0-9]/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+
+    const configs = [
+      { w: '0%',   bg: 'transparent', text: 'Enter a password' },
+      { w: '25%',  bg: '#f87171',     text: 'Weak' },
+      { w: '50%',  bg: '#fb923c',     text: 'Fair' },
+      { w: '75%',  bg: '#facc15',     text: 'Good' },
+      { w: '100%', bg: '#4ade80',     text: 'Strong 💪' },
+    ];
+    const c = configs[score];
+    fill.style.width = c.w;
+    fill.style.background = c.bg;
+    lbl.textContent = c.text;
+  });
+</script>
+{% endblock %}
